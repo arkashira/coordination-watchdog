@@ -1,11 +1,13 @@
-# Agent Monitor
-
+# Coordination Watchdog
 A basic agent monitoring system to detect coordination layer failures.
 
-## Usage
+## Features
+* Detects agent failures in real-time
+* Handles multiple agents
+* Reports agent status updates
 
-1. Create an instance of the `AgentMonitor` class.
-2. Add agents to the monitor using the `add_agent` method.
-3. Remove agents from the monitor using the `remove_agent` method.
-4. Detect failed agents using the `detect_failures` method.
-5. Report failed agents using the `report_failures` method.
+## Usage
+1. Create an instance of the CoordinationWatchdog class
+2. Add agents using the add_agent method
+3. Update agent status using the update_agent_status method
+4. Get agent status using the get_agent_status method
