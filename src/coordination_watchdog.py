@@ -1,46 +1,48 @@
 import json
 from dataclasses import dataclass
-from typing import Dict
+from enum import Enum
+from typing import Dict, List
+
+class AgentStatus(Enum):
+    ACTIVE = "active"
+    IDLE = "idle"
+    ERROR = "error"
 
 @dataclass
-class Metrics:
-    """Clear and actionable metrics for observability"""
-    system_uptime: int
-    integration_status: str
+class Agent:
+    id: int
+    status: AgentStatus
 
 class CoordinationWatchdog:
-    """Seamless Integration with existing observability stack"""
-    def __init__(self, prometheus_url: str, grafana_url: str):
-        if not prometheus_url or not grafana_url:
-            raise AttributeError("Both Prometheus and Grafana URLs are required")
-        self.prometheus_url = prometheus_url
-        self.grafana_url = grafana_url
-        self.metrics = Metrics(0, "unknown")
+    def __init__(self):
+        self.agents: Dict[int, Agent] = {}
+        self.status_filters: Dict[AgentStatus, List[int]] = {status: [] for status in AgentStatus}
 
-    def integrate_with_prometheus(self) -> bool:
-        """Integrate with Prometheus without modification"""
-        # Simulate integration with Prometheus
-        self.metrics.system_uptime = 100
-        self.metrics.integration_status = "success"
-        return True
+    def add_agent(self, agent: Agent):
+        self.agents[agent.id] = agent
+        self.status_filters[agent.status].append(agent.id)
 
-    def integrate_with_grafana(self) -> bool:
-        """Integrate with Grafana without modification"""
-        # Simulate integration with Grafana
-        self.metrics.system_uptime = 100
-        self.metrics.integration_status = "success"
-        return True
+    def update_agent_status(self, agent_id: int, new_status: AgentStatus):
+        if agent_id in self.agents:
+            old_status = self.agents[agent_id].status
+            self.agents[agent_id].status = new_status
+            self.status_filters[old_status].remove(agent_id)
+            self.status_filters[new_status].append(agent_id)
+        else:
+            raise ValueError("Agent not found")
 
-    def get_metrics(self) -> Dict:
-        """Get clear and actionable metrics for observability"""
-        return {
-            "system_uptime": self.metrics.system_uptime,
-            "integration_status": self.metrics.integration_status
-        }
+    def get_agents_by_status(self, status: AgentStatus) -> List[Agent]:
+        return [self.agents[agent_id] for agent_id in self.status_filters[status]]
 
-    def configure_integration(self, prometheus_url: str, grafana_url: str) -> None:
-        """Configure integration settings"""
-        if not prometheus_url or not grafana_url:
-            raise AttributeError("Both Prometheus and Grafana URLs are required")
-        self.prometheus_url = prometheus_url
-        self.grafana_url = grafana_url
+    def get_all_agents(self) -> List[Agent]:
+        return list(self.agents.values())
+
+    def trigger_alert(self, agent_id: int, new_status: AgentStatus):
+        # Simulate alert triggering
+        print(f"Alert triggered for agent {agent_id} with new status {new_status}")
+
+    def dashboard(self):
+        # Simulate dashboard display
+        print("Current coordination status:")
+        for agent in self.get_all_agents():
+            print(f"Agent {agent.id}: {agent.status.value}")
