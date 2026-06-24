@@ -1,14 +1,8 @@
-# Coordination Watchdog
-
-A Python project for tracking the coordination state of agents in real-time.
-
-## Features
-
-* Displays live coordination status per agent
-* Triggers alerts when coordination state changes unexpectedly
-* Allows filtering agents by status (active, idle, error)
+# Agent Monitor
+A basic agent monitoring system to detect coordination layer failures.
 
 ## Usage
-
-1. Run `python -m pytest` to run the tests
-2. Run `python src/coordination_watchdog.py` to start the coordination watchdog
+1. Register an agent using `AgentMonitor.register_agent()`.
+2. Update the agent's heartbeat using `AgentMonitor.update_heartbeat()`.
+3. Detect failed agents using `AgentMonitor.detect_failures()`.
+4. Report the status of all agents using `AgentMonitor.report_status()`.
