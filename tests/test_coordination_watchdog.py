@@ -1,42 +1,33 @@
-from coordination_watchdog import CoordinationWatchdog, Agent, AgentStatus
+import pytest
+from coordination_watchdog import CoordinationWatchdog, CoordinationEvent
+import time
 
-def test_add_agent():
+def test_start_coordination():
     watchdog = CoordinationWatchdog()
-    agent = Agent(1, AgentStatus.ACTIVE)
-    watchdog.add_agent(agent)
-    assert len(watchdog.get_all_agents()) == 1
+    agent_id = "test_agent"
+    watchdog.start_coordination(agent_id)
+    assert agent_id in watchdog.events
 
-def test_update_agent_status():
+def test_end_coordination():
     watchdog = CoordinationWatchdog()
-    agent = Agent(1, AgentStatus.ACTIVE)
-    watchdog.add_agent(agent)
-    watchdog.update_agent_status(1, AgentStatus.IDLE)
-    assert watchdog.get_all_agents()[0].status == AgentStatus.IDLE
+    agent_id = "test_agent"
+    watchdog.start_coordination(agent_id)
+    event = watchdog.end_coordination(agent_id)
+    assert isinstance(event, CoordinationEvent)
+    assert event.agent_id == agent_id
 
-def test_get_agents_by_status():
+def test_end_coordination_before_start():
     watchdog = CoordinationWatchdog()
-    agent1 = Agent(1, AgentStatus.ACTIVE)
-    agent2 = Agent(2, AgentStatus.IDLE)
-    watchdog.add_agent(agent1)
-    watchdog.add_agent(agent2)
-    assert len(watchdog.get_agents_by_status(AgentStatus.ACTIVE)) == 1
-    assert len(watchdog.get_agents_by_status(AgentStatus.IDLE)) == 1
+    agent_id = "test_agent"
+    with pytest.raises(ValueError):
+        watchdog.end_coordination(agent_id)
 
-def test_trigger_alert():
+def test_coordination_latency():
     watchdog = CoordinationWatchdog()
-    agent = Agent(1, AgentStatus.ACTIVE)
-    watchdog.add_agent(agent)
-    watchdog.update_agent_status(1, AgentStatus.ERROR)
-    # Simulate alert triggering
-    print("Alert triggered for agent 1 with new status error")
-
-def test_dashboard():
-    watchdog = CoordinationWatchdog()
-    agent1 = Agent(1, AgentStatus.ACTIVE)
-    agent2 = Agent(2, AgentStatus.IDLE)
-    watchdog.add_agent(agent1)
-    watchdog.add_agent(agent2)
-    # Simulate dashboard display
-    print("Current coordination status:")
-    print("Agent 1: active")
-    print("Agent 2: idle")
+    agent_id = "test_agent"
+    start_time = time.time()
+    watchdog.start_coordination(agent_id)
+    watchdog.end_coordination(agent_id)
+    end_time = time.time()
+    latency = end_time - start_time
+    assert latency < 0.005  # 5ms
